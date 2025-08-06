@@ -148,7 +148,7 @@
                 <th>Narration</th>
                 <th>Amount</th>
                 <th>O/S Amount</th>
-                <th>Balance</th>
+                <!-- <th>Balance</th> -->
                 <th>Ageing</th>
             </tr>
         </thead>
@@ -161,13 +161,13 @@
                     <td>{%= data[i].narration || '' %}</td>
                     <td class="text-right">SAR {%= (data[i].amount || 0).toFixed(2) %}</td>
                     <td class="text-right">SAR {%= (data[i].os_amount || 0).toFixed(2) %}</td>
-                    <td class="text-right">SAR {%= (data[i].balance || 0).toFixed(2) %}</td>
+                    <!-- <td class="text-right">SAR {%= (data[i].balance || 0).toFixed(2) %}</td> -->
                     <td>{%= data[i].ageing || '-' %}</td>
                 </tr>
             {% } %}
 
             <tr class="total-outstanding">
-                <td colspan="5">Total Outstanding</td>
+                <td colspan="4">Total Outstanding</td>
                 <td></td>
                 <td class="text-right">SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</td>
                 <td></td>
