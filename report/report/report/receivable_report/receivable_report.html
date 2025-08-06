@@ -78,9 +78,9 @@
             padding: 3px 0;
         }
         .summary-row span, .summary-row strong {
-    border: none !important;
-    box-shadow: none !important;
-}
+            border: none !important;
+            box-shadow: none !important;
+        }
         .summary-row .label {
             font-weight: bold;
         }
@@ -111,6 +111,18 @@
     </style>
 </head>
 <body>
+
+    <div class="header page-header-space" style="margin-top: -25px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="image" style="width: 200px; height: 130px; flex-shrink: 0;">
+            <img src="https://erp-flame.frappe.cloud/files/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+
+        <div class="right" style="text-align: right; flex-grow: 1; padding-left: 20px;">
+            <h3 style="color: #32368d; font-size: 30px; margin-bottom: 2px; border-bottom: 1px solid red;">شركة شعلة الامتياز للتجارة</h3>
+            <h3 style="color: #32368d; margin-top: 0px; font-weight: 600;">SHAALA AL AMTIAZ COMPANY</h3>
+            <p style="color: #32368d;">CR No: 1010322666 - VAT No: 311987999100003</p>
+        </div>
+    </div>
 
     <div class="title">OUTSTANDING LETTER</div>
 
@@ -148,7 +160,6 @@
                 <th>Narration</th>
                 <th>Amount</th>
                 <th>O/S Amount</th>
-                <!-- <th>Balance</th> -->
                 <th>Ageing</th>
             </tr>
         </thead>
@@ -161,7 +172,6 @@
                     <td>{%= data[i].narration || '' %}</td>
                     <td class="text-right">SAR {%= (data[i].amount || 0).toFixed(2) %}</td>
                     <td class="text-right">SAR {%= (data[i].os_amount || 0).toFixed(2) %}</td>
-                    <!-- <td class="text-right">SAR {%= (data[i].balance || 0).toFixed(2) %}</td> -->
                     <td>{%= data[i].ageing || '-' %}</td>
                 </tr>
             {% } %}
@@ -196,7 +206,6 @@
             <b>In Words: {%= data[data.length - 1].amount_in_words || '' %}</b>
         </div>
     </div>
-
 
     <table class="ageing-summary">
         <thead>
