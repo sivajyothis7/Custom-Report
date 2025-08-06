@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Statement of Accounts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            margin: 20px;
+        }
+        .header {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 100%;
+            height: auto;
+        }
+        .to-box {
+            padding: 10px;
+            width: 45%;
+            box-sizing: border-box;
+        }
+        .to-box strong {
+            font-size: 10pt;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .logo {
+            width: 200px;
+            max-height: 100px;
+        }
+        .title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 20px 0 5px;
+        }
+        .period {
+            text-align: center;
+            font-size: 10pt;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .total-outstanding td {
+            font-weight: bold;
+        }
+        .summary {
+            width: 35%;
+            float: right;
+            margin-top: 20px;
+            font-size: 11pt;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+        .summary-row span, .summary-row strong {
+    border: none !important;
+    box-shadow: none !important;
+}
+        .summary-row .label {
+            font-weight: bold;
+        }
+        .amount-in-words {
+            margin-top: 10px;
+            font-style: italic;
+            font-size: 8pt;
+            text-align: left;
+        }
+        .ageing-heading {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-top: 40px;
+        }
+        .ageing-summary {
+            margin-top: 10px;
+            font-size: 9pt;
+            width: 100%;
+        }
+        .ageing-summary th, .ageing-summary td {
+            padding: 5px;
+            text-align: right;
+        }
+        .ageing-summary th {
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">OUTSTANDING LETTER</div>
+
+    <div class="period">
+        {% if (filters.from_date && filters.to_date) { %}
+            {%= frappe.datetime.str_to_user(filters.from_date) %} TO {%= frappe.datetime.str_to_user(filters.to_date) %}
+        {% } %}
+    </div>
+
+    <div class="to-box">
+        <strong>To</strong>
+        {% if (filters.customer) { %}
+            <strong>{%= filters.customer %}</strong>
+            {% if (data[0].primary_address) { %}
+                <div>{%= data[0].primary_address %}</div>
+            {% } %}
+        {% } %}
+    </div>
+
+    <p>Dear Sir/Madam,</p>
+    <p>
+        Please find here below the details of your outstanding invoices as of today 
+        (<strong>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</strong>). 
+        Requesting you to settle the same at the earliest, your outstanding past due balance is 
+        (<strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong>), 
+        as details on the statement of outstanding given below.
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Voucher No</th>
+                <th>Branch</th>
+                <th>Narration</th>
+                <th>Amount</th>
+                <th>O/S Amount</th>
+                <th>Balance</th>
+                <th>Ageing</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for (var i = 0; i < data.length - 1; i++) { %}
+                <tr>
+                    <td>{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
+                    <td>{%= data[i].name %}</td>
+                    <td>{%= data[i].cost_center || '' %}</td>
+                    <td>{%= data[i].narration || '' %}</td>
+                    <td class="text-right">SAR {%= (data[i].amount || 0).toFixed(2) %}</td>
+                    <td class="text-right">SAR {%= (data[i].os_amount || 0).toFixed(2) %}</td>
+                    <td class="text-right">SAR {%= (data[i].balance || 0).toFixed(2) %}</td>
+                    <td>{%= data[i].ageing || '-' %}</td>
+                </tr>
+            {% } %}
+
+            <tr class="total-outstanding">
+                <td colspan="5">Total Outstanding</td>
+                <td></td>
+                <td class="text-right">SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% 
+        var total_os = 0, total_amt = 0;
+        for (var i = 0; i < data.length - 1; i++) {
+            total_amt += flt(data[i].amount) || 0;
+            total_os += flt(data[i].os_amount) || 0;
+        }
+    %}
+
+    <div class="summary">
+        <div class="summary-row">
+            <span class="label">Invoiced Amount:</span> 
+            <span><strong>SAR {%= total_amt.toFixed(2) %}</strong></span>
+        </div>
+        <div class="summary-row">
+            <span class="label">Balance Due:</span> 
+            <span><strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong></span>
+        </div>
+        <div class="amount-in-words">
+            <b>In Words: {%= data[data.length - 1].amount_in_words || '' %}</b>
+        </div>
+    </div>
+
+
+    <table class="ageing-summary">
+        <thead>
+            <tr>
+                <th>&lt;30</th>
+                <th>30-60</th>
+                <th>60-90</th>
+                <th>90-120</th>
+                <th>120-150</th>
+                <th>150-180</th>
+                <th>180+</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>SAR {%= (data[data.length - 1].ageing_30 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_60 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_90 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_120 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_150 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_180 || 0).toFixed(2) %}</td>
+                <td>SAR {%= (data[data.length - 1].ageing_plus || 0).toFixed(2) %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
