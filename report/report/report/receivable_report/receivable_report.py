@@ -4,7 +4,7 @@ from frappe.utils import today, getdate, money_in_words, flt
 def execute(filters=None):
     columns = [
         {"fieldname": "posting_date", "label": "Date", "fieldtype": "Date", "width": 120},
-        {"fieldname": "name", "label": "Voucher No", "fieldtype": "Data", "width": 200},
+        {"fieldname": "name", "label": "Voucher No", "fieldtype": "Link", "options": "Sales Invoice", "width": 200},
         {"fieldname": "cost_center", "label": "Branch", "fieldtype": "Data", "width": 140},
         {"fieldname": "narration", "label": "Narration", "fieldtype": "Data", "width": 200},
         {"fieldname": "amount", "label": "Total Amount", "fieldtype": "Currency", "width": 150},
@@ -39,12 +39,22 @@ def execute(filters=None):
 
     fields = ['name', 'posting_date', 'grand_total', 'outstanding_amount', 'cost_center']
     meta = frappe.get_meta('Sales Invoice')
+
     if meta.has_field('custom_awb__mbl'):
         fields.append('custom_awb__mbl')
+
     if meta.has_field('custom_remarks_custom'):
         fields.append('custom_remarks_custom')
+
     if meta.has_field('custom_job_record'):
         fields.append('custom_job_record')
+
+    if meta.has_field('custom_warehouse_job_record'):
+        fields.append('custom_warehouse_job_record')
+
+
+
+    condns['outstanding_amount'] = ['>', 0]
 
     invoices = frappe.get_all(
         "Sales Invoice",
@@ -72,7 +82,7 @@ def execute(filters=None):
             amount = flt(invoice.get("grand_total", 0))
             os_amount = flt(invoice.get("outstanding_amount", 0))
 
-            invoice["narration"] = invoice.get("custom_job_record") or ""
+            invoice["narration"] = invoice.get("custom_job_record") or invoice.get("custom_warehouse_job_record") or ""
             invoice["amount"] = amount
             invoice["os_amount"] = os_amount
             invoice["balance"] = running_balance  
@@ -106,7 +116,6 @@ def execute(filters=None):
 
         data.extend(invoices)
 
-        # Final summary row
         balance_row = {
             "posting_date": "",
             "name": "",
