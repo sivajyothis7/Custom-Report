@@ -37,7 +37,10 @@ def execute(filters=None):
         elif filters.get('to_date'):
             condns["posting_date"] = ["<=", filters.to_date]
 
-    fields = ['name', 'posting_date', 'grand_total', 'outstanding_amount', 'cost_center']
+    fields = [
+        'name', 'posting_date', 'grand_total', 'outstanding_amount',
+        'cost_center', 'customer', 'customer_name'
+    ]
     meta = frappe.get_meta('Sales Invoice')
 
     if meta.has_field('custom_awb__mbl'):
@@ -51,8 +54,6 @@ def execute(filters=None):
 
     if meta.has_field('custom_warehouse_job_record'):
         fields.append('custom_warehouse_job_record')
-
-
 
     condns['outstanding_amount'] = ['>', 0]
 
@@ -82,7 +83,11 @@ def execute(filters=None):
             amount = flt(invoice.get("grand_total", 0))
             os_amount = flt(invoice.get("outstanding_amount", 0))
 
-            invoice["narration"] = invoice.get("custom_job_record") or invoice.get("custom_warehouse_job_record") or ""
+            invoice["narration"] = (
+                invoice.get("custom_job_record")
+                or invoice.get("custom_warehouse_job_record")
+                or ""
+            )
             invoice["amount"] = amount
             invoice["os_amount"] = os_amount
             invoice["balance"] = running_balance  
@@ -133,7 +138,9 @@ def execute(filters=None):
             "ageing_180": ageing_buckets["ageing_180"],
             "ageing_plus": ageing_buckets["ageing_plus"],
             "amount_in_words": money_in_words(total_os, "SAR") if total_os else "",
-            "primary_address": address_display
+            "primary_address": address_display,
+            "customer": invoices[0].get("customer"),
+            "customer_name": invoices[0].get("customer_name"),
         }
         data.append(balance_row)
 

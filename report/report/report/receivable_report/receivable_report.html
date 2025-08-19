@@ -121,17 +121,16 @@
             {%= frappe.datetime.str_to_user(filters.from_date) %} TO {%= frappe.datetime.str_to_user(filters.to_date) %}
         {% } %}
     </div>
-
     <div class="to-box">
         <strong>To</strong>
         {% if (filters.customer) { %}
-            <strong>{%= filters.customer %}</strong>
+            <strong>{%= data[0].customer_name || filters.customer %}</strong>
             {% if (data[0].primary_address) { %}
                 <div>{%= data[0].primary_address %}</div>
             {% } %}
         {% } %}
     </div>
-
+    
     <p>Dear Sir/Madam,</p>
     <p>
         Please find here below the details of your outstanding invoices as of today 
