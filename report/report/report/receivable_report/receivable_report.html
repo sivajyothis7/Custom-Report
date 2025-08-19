@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <title>Statement of Accounts</title>
     <style>
+        @page {
+            size: A4;
+            margin: 20px;
+        }
         body {
             font-family: Arial, sans-serif;
             font-size: 9pt;
-            margin: 20px;
+            margin: 0;
         }
         .header {
             width: 100%;
             margin-bottom: 20px;
         }
         .logo {
-            width: 100%;
-            height: auto;
+            width: 200px;
+            max-height: 100px;
         }
         .to-box {
             padding: 10px;
@@ -26,10 +30,6 @@
             font-size: 10pt;
             display: block;
             margin-bottom: 5px;
-        }
-        .logo {
-            width: 200px;
-            max-height: 100px;
         }
         .title {
             text-align: center;
@@ -45,66 +45,57 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9pt;
+            font-size: 8pt; 
             margin-top: 10px;
         }
         th, td {
-            border: 1px solid #000;
-            padding: 5px;
+            border: 0.5px solid #000; 
+            padding: 2px 3px; 
             text-align: center;
+            line-height: 0.9; 
         }
         th {
-            background-color: #f0f0f0;
             font-weight: bold;
+            color: #000; 
+            background-color: #f0f0f0;
         }
         .text-right {
             text-align: right;
         }
-        .bold {
-            font-weight: bold;
-        }
-        .total-outstanding td {
-            font-weight: bold;
-        }
         .summary {
-            width: 35%;
-            float: right;
+            width: 100%;
             margin-top: 20px;
-            font-size: 11pt;
+            font-size: 10pt;
         }
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 3px 0;
+            align-items: center;
         }
-        .summary-row span, .summary-row strong {
-            border: none !important;
-            box-shadow: none !important;
+        .summary-row span:first-child {
+            text-align: center;
+            flex: 1;
+            white-space: nowrap;
         }
-        .summary-row .label {
-            font-weight: bold;
-        }
-        .amount-in-words {
-            margin-top: 10px;
-            font-style: italic;
-            font-size: 8pt;
-            text-align: left;
-        }
-        .ageing-heading {
-            font-weight: bold;
-            font-size: 11pt;
-            margin-top: 40px;
+        .summary-row span:last-child {
+            white-space: nowrap;
+            text-align: right;
         }
         .ageing-summary {
             margin-top: 10px;
-            font-size: 9pt;
+            font-size: 8pt;
             width: 100%;
+            border-collapse: collapse;
         }
         .ageing-summary th, .ageing-summary td {
-            padding: 5px;
+            padding: 2px 3px;
             text-align: right;
+            border: 0.5px solid #000;
+            line-height: 0.9;
         }
         .ageing-summary th {
+            font-weight: bold;
+            color: #000; /* black text */
             background-color: #f0f0f0;
             text-align: center;
         }
@@ -112,17 +103,16 @@
 </head>
 <body>
 
-    <div class="header page-header-space" style="margin-top: -25px; display: flex; justify-content: space-between; align-items: center;">
+    <!-- <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
         <div class="image" style="width: 200px; height: 130px; flex-shrink: 0;">
             <img src="https://erp-flame.frappe.cloud/files/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
-
         <div class="right" style="text-align: right; flex-grow: 1; padding-left: 20px;">
-            <h3 style="color: #32368d; font-size: 30px; margin-bottom: 2px; ">شركة شعلة الامتياز للتجارة</h3>
-            <h3 style="color: #32368d; margin-top: 0px; font-weight: 600;">SHAALA AL AMTIAZ COMPANY</h3>
-            <p style="color: #32368d;">CR No: 1010322666 - VAT No: 311987999100003</p>
+            <h3 style="color: #000; font-size: 30px; margin-bottom: 2px;">شركة شعلة الامتياز للتجارة</h3>
+            <h3 style="color: #000; margin-top: 0px; font-weight: 600;">SHAALA AL AMTIAZ COMPANY</h3>
+            <p style="color: #000;">CR No: 1010322666 - VAT No: 311987999100003</p>
         </div>
-    </div>
+    </div> -->
 
     <div class="title">OUTSTANDING LETTER</div>
 
@@ -154,15 +144,16 @@
     <table>
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Voucher No</th>
-                <th>Branch</th>
-                <th>Narration</th>
-                <th>Amount</th>
-                <th>O/S Amount</th>
-                <th>Ageing</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Date</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Voucher No</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Branch</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Narration</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Amount</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">O/S Amount</th>
+                <th style="font-weight: bold; color: #000; border: 0.5px solid #000; padding: 2px 3px; line-height: 0.9; text-align: center;">Ageing</th>
             </tr>
         </thead>
+        
         <tbody>
             {% for (var i = 0; i < data.length - 1; i++) { %}
                 <tr>
@@ -175,35 +166,13 @@
                     <td>{%= data[i].ageing || '-' %}</td>
                 </tr>
             {% } %}
-
-            <tr class="total-outstanding">
-                <td colspan="4">Total Outstanding</td>
-                <td></td>
-                <td class="text-right">SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</td>
-                <td></td>
-            </tr>
         </tbody>
     </table>
 
-    {% 
-        var total_os = 0, total_amt = 0;
-        for (var i = 0; i < data.length - 1; i++) {
-            total_amt += flt(data[i].amount) || 0;
-            total_os += flt(data[i].os_amount) || 0;
-        }
-    %}
-
     <div class="summary">
-        <!-- <div class="summary-row">
-            <span class="label">Invoiced Amount:</span> 
-            <span><strong>SAR {%= total_amt.toFixed(2) %}</strong></span>
-        </div> -->
         <div class="summary-row">
-            <span class="label">Balance Due:</span> 
+            <span><b>{%= data[data.length - 1].amount_in_words || '' %}</b></span>
             <span><strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong></span>
-        </div>
-        <div class="amount-in-words">
-            <b>In Words: {%= data[data.length - 1].amount_in_words || '' %}</b>
         </div>
     </div>
 
