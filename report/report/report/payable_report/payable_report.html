@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Statement of Accounts</title>
+    <title>Supplier Statement of Accounts</title>
     <style>
         @page {
             size: A4;
@@ -12,24 +12,6 @@
             font-family: Arial, sans-serif;
             font-size: 9pt;
             margin: 0;
-        }
-        .header {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .logo {
-            width: 200px;
-            max-height: 100px;
-        }
-        .to-box {
-            padding: 10px;
-            width: 45%;
-            box-sizing: border-box;
-        }
-        .to-box strong {
-            font-size: 10pt;
-            display: block;
-            margin-bottom: 5px;
         }
         .title {
             text-align: center;
@@ -45,18 +27,17 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8pt; 
+            font-size: 8pt;
             margin-top: 10px;
         }
         th, td {
-            border: 0.5px solid #000; 
-            padding: 2px 3px; 
+            border: 0.5px solid #000;
+            padding: 2px 3px;
             text-align: center;
-            line-height: 0.9; 
+            line-height: 0.9;
         }
         th {
             font-weight: bold;
-            color: #000; 
             background-color: #f0f0f0;
         }
         .text-right {
@@ -72,15 +53,6 @@
             justify-content: space-between;
             align-items: center;
         }
-        .summary-row span:first-child {
-            text-align: center;
-            flex: 1;
-            white-space: nowrap;
-        }
-        .summary-row span:last-child {
-            white-space: nowrap;
-            text-align: right;
-        }
         .ageing-summary {
             margin-top: 10px;
             font-size: 8pt;
@@ -94,8 +66,6 @@
             line-height: 0.9;
         }
         .ageing-summary th {
-            font-weight: bold;
-            color: #000;
             background-color: #f0f0f0;
             text-align: center;
         }
@@ -103,17 +73,18 @@
 </head>
 <body>
 
-    <div class="title">OUTSTANDING LETTER</div>
+    <div class="title">PAYABLE STATEMENT</div>
 
     <div class="period">
         {% if (filters.from_date && filters.to_date) { %}
             {%= frappe.datetime.str_to_user(filters.from_date) %} TO {%= frappe.datetime.str_to_user(filters.to_date) %}
         {% } %}
     </div>
+
     <div class="to-box">
         <strong>To</strong>
-        {% if (filters.customer) { %}
-            <strong>{%= data[0].customer_name || filters.customer %}</strong>
+        {% if (filters.supplier) { %}
+            <strong>{%= data[0].supplier_name || filters.supplier %}</strong>
             {% if (data[0].primary_address) { %}
                 <div>{%= data[0].primary_address %}</div>
             {% } %}
@@ -122,11 +93,11 @@
     
     <p>Dear Sir/Madam,</p>
     <p>
-        Please find here below the details of your outstanding invoices as of today 
+        Please find here below the details of your outstanding payable invoices as of today 
         (<strong>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</strong>). 
-        Requesting you to settle the same at the earliest, your outstanding past due balance is 
-        (<strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong>), 
-        as details on the statement of outstanding given below.
+        Your total outstanding balance is 
+        (<strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong>) 
+        as detailed below.
     </p>
 
     <table>
@@ -138,7 +109,7 @@
                 <th>Narration</th>
                 <th>Amount</th>
                 <th>O/S Amount</th>
-                <th>Running Total</th> 
+                <th>Running Total</th>
                 <th>Ageing</th>
             </tr>
         </thead>
@@ -152,7 +123,7 @@
                     <td>{%= data[i].narration || '' %}</td>
                     <td class="text-right">SAR {%= (data[i].amount || 0).toFixed(2) %}</td>
                     <td class="text-right">SAR {%= (data[i].os_amount || 0).toFixed(2) %}</td>
-                    <td class="text-right">SAR {%= (data[i].running_total || 0).toFixed(2) %}</td> 
+                    <td class="text-right">SAR {%= (data[i].running_total || 0).toFixed(2) %}</td>
                     <td>{%= data[i].ageing || '-' %}</td>
                 </tr>
             {% } %}
