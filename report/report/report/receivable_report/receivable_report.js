@@ -1,10 +1,10 @@
-frappe.query_reports["Payable Report"] = {
+frappe.query_reports["Receivable Report"] = {
     filters: [
         {
-            fieldname: "supplier",
-            label: "Supplier",
+            fieldname: "customer",
+            label: "Customer",
             fieldtype: "Link",
-            options: "Supplier",
+            options: "Customer",
             width: 150
         },
         {
@@ -19,5 +19,7 @@ frappe.query_reports["Payable Report"] = {
             fieldtype: "Date",
             default: frappe.datetime.get_today()
         }
-    ]
+    ],
+
+   
 };
