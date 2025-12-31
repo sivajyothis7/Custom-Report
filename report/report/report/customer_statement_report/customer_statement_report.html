@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Outstanding Statement</title>
+
+<style>
+@page { size: A4; margin: 20px; }
+body { font-family: Arial; font-size: 9pt; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 0.5px solid #000; padding: 3px; font-size: 8pt; }
+th { background: #f0f0f0; font-weight: bold; }
+
+.text-right { text-align: right; }
+.debit { color: #1f4bd8; font-weight: bold; }
+.credit { color: #d11a2a; font-weight: bold; }
+
+.age-30 { background: #e8f5e9; }
+.age-60 { background: #fff9c4; }
+.age-90 { background: #ffe0b2; }
+.age-120 { background: #ffccbc; }
+.age-150, .age-180, .age-plus { background: #ffcdd2; }
+
+.total-row { background: #e0f2f1; font-weight: bold; }
+
+.title { 
+    text-align: center; 
+    font-size: 14pt; 
+    font-weight: bold; 
+    margin-bottom: 5px;
+}
+
+.period { 
+    text-align: center; 
+    margin-bottom: 15px; 
+    font-weight: bold;
+}
+
+.to-box {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.to-box div {
+    font-weight: normal;
+    margin-top: 2px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">OUTSTANDING LETTER</div>
+
+<div class="period">
+{% if (filters.from_date && filters.to_date) { %}
+{%= frappe.datetime.str_to_user(filters.from_date) %} TO
+{%= frappe.datetime.str_to_user(filters.to_date) %}
+{% } %}
+</div>
+
+<!-- CUSTOMER DETAILS -->
+<div class="to-box">
+    <div><strong>To,</strong></div>
+
+    {% if (data && data.length && data[0].customer_name) { %}
+        <div><strong>{%= data[0].customer_name %}</strong></div>
+    {% } %}
+
+    {% if (data && data.length && data[0].primary_address) { %}
+        <div>{%= data[0].primary_address %}</div>
+    {% } %}
+</div>
+
+<p><strong>Dear Sir / Madam,</strong></p>
+
+<p>
+    Please find here below the details of your outstanding invoices as of today 
+    (<strong>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</strong>). 
+    Requesting you to settle the same at the earliest,as details of outstanding given below.
+</p>
+
+<table>
+<thead>
+<tr>
+    <th>Date</th>
+    <th>Voucher</th>
+    <th>Branch</th>
+    <th>Narration</th>
+    <th>Debit</th>
+    <th>Credit</th>
+    <th>O/S Amount</th>
+    <th>Running Total</th>
+    <th>Ageing</th>
+</tr>
+</thead>
+
+<tbody>
+{% for (var i = 0; i < data.length - 1; i++) { 
+   var age = data[i].ageing || 0;
+   var cls =
+     age < 30 ? 'age-30' :
+     age < 60 ? 'age-60' :
+     age < 90 ? 'age-90' :
+     age < 120 ? 'age-120' :
+     age < 150 ? 'age-150' :
+     age < 180 ? 'age-180' : 'age-plus';
+%}
+<tr class="{%= cls %}">
+    <td>{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
+    <td>{%= data[i].name %}</td>
+    <td>{%= data[i].cost_center || "" %}</td>
+    <td>{%= data[i].narration || "" %}</td>
+
+    <td class="text-right debit">
+        {%= (data[i].debit || 0).toFixed(2) %}
+    </td>
+
+    <td class="text-right credit">
+        {%= (data[i].credit || 0).toFixed(2) %}
+    </td>
+
+    <td class="text-right">
+        {%= (data[i].os_amount || 0).toFixed(2) %}
+    </td>
+
+    <td class="text-right">
+        {%= (data[i].running_total || 0).toFixed(2) %}
+    </td>
+
+    <td><strong>{%= data[i].ageing || "-" %}</strong></td>
+</tr>
+{% } %}
+</tbody>
+</table>
+
+<!-- SUMMARY -->
+<table>
+<tr class="total-row">
+    <td colspan="5"><strong>{%= data[data.length - 1].amount_in_words || '' %}</strong></td>
+    <td colspan="4" class="text-right">
+        <strong>SAR {%= (data[data.length - 1].os_amount || 0).toFixed(2) %}</strong>
+    </td>
+</tr>
+</table>
+
+<!-- AGEING SUMMARY -->
+<table>
+<thead>
+<tr>
+    <th>&lt;30</th>
+    <th>30–60</th>
+    <th>60–90</th>
+    <th>90–120</th>
+    <th>120–150</th>
+    <th>150–180</th>
+    <th>180+</th>
+</tr>
+</thead>
+<tr class="total-row">
+    <td>{%= data[data.length-1].ageing_30.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_60.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_90.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_120.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_150.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_180.toFixed(2) %}</td>
+    <td>{%= data[data.length-1].ageing_plus.toFixed(2) %}</td>
+</tr>
+</table>
+
+</body>
+</html>
