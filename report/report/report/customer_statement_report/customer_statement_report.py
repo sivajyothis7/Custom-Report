@@ -5,8 +5,10 @@ def execute(filters=None):
     columns = [
         {"fieldname": "posting_date", "label": "Date", "fieldtype": "Date", "width": 130},
         {"fieldname": "name", "label": "Voucher No", "fieldtype": "Link", "options": "Sales Invoice", "width": 180},
-        {"fieldname": "cost_center", "label": "Branch", "fieldtype": "Data", "width": 120},
+       
         {"fieldname": "narration", "label": "Narration", "fieldtype": "Data", "width": 110},
+        {"fieldname": "bl_no", "label": "BL No", "fieldtype": "Data", "width": 120},        # New
+        {"fieldname": "bayan_no", "label": "Bayan No", "fieldtype": "Data", "width": 120}, 
 
         {"fieldname": "debit", "label": "Debit", "fieldtype": "Currency", "width": 110},
         {"fieldname": "credit", "label": "Credit", "fieldtype": "Currency", "width": 110},
@@ -50,11 +52,12 @@ def execute(filters=None):
         "name",
         "posting_date",
         "grand_total",
-        "outstanding_amount",
-        "cost_center",
+        "outstanding_amount",      
         "customer",
         "customer_name",
         "is_return",
+        "custom_bl_no",     
+        "custom_bayan_no",
     ]
 
     meta = frappe.get_meta("Sales Invoice")
@@ -97,12 +100,16 @@ def execute(filters=None):
         os_amount = flt(inv.get("outstanding_amount"))
         grand_total = flt(inv.get("grand_total"))
         is_return = inv.get("is_return")
+        
 
         inv["narration"] = (
             inv.get("custom_job_record")
             or inv.get("custom_warehouse_job_record")
             or ""
         )
+
+        inv["bl_no"] = inv.get("custom_bl_no") or ""
+        inv["bayan_no"] = inv.get("custom_bayan_no") or ""
 
         if is_return:
             inv["debit"] = 0

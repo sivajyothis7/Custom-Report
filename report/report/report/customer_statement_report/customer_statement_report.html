@@ -86,7 +86,8 @@ th { background: #f0f0f0; font-weight: bold; }
 <tr>
     <th>Date</th>
     <th>Voucher</th>
-    <th>Branch</th>
+    <th>BL No</th>
+    <th>Bayan No</th>
     <th>Narration</th>
     <th>Debit</th>
     <th>Credit</th>
@@ -110,7 +111,8 @@ th { background: #f0f0f0; font-weight: bold; }
 <tr class="{%= cls %}">
     <td>{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
     <td>{%= data[i].name %}</td>
-    <td>{%= data[i].cost_center || "" %}</td>
+    <td>{%= data[i].bl_no || "" %}</td>
+    <td>{%= data[i].bayan_no || "" %}</td>
     <td>{%= data[i].narration || "" %}</td>
 
     <td class="text-right debit">
