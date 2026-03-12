@@ -1,23 +1,37 @@
 import frappe
 from frappe.utils import today, getdate, money_in_words, flt
 
+
 def execute(filters=None):
+
+    meta = frappe.get_meta("Sales Invoice")
+
+    # -----------------------
+    # Columns
+    # -----------------------
     columns = [
         {"fieldname": "posting_date", "label": "Date", "fieldtype": "Date", "width": 130},
         {"fieldname": "name", "label": "Voucher No", "fieldtype": "Link", "options": "Sales Invoice", "width": 180},
-       
         {"fieldname": "narration", "label": "Narration", "fieldtype": "Data", "width": 110},
-        {"fieldname": "bl_no", "label": "BL No", "fieldtype": "Data", "width": 120},        # New
-        {"fieldname": "bayan_no", "label": "Bayan No", "fieldtype": "Data", "width": 120}, 
+    ]
 
+    if meta.has_field("custom_bl_no"):
+        columns.append({"fieldname": "bl_no", "label": "BL No", "fieldtype": "Data", "width": 120})
+
+    if meta.has_field("custom_bayan_no"):
+        columns.append({"fieldname": "bayan_no", "label": "Bayan No", "fieldtype": "Data", "width": 120})
+
+    columns.extend([
         {"fieldname": "debit", "label": "Debit", "fieldtype": "Currency", "width": 110},
         {"fieldname": "credit", "label": "Credit", "fieldtype": "Currency", "width": 110},
-
         {"fieldname": "os_amount", "label": "O/S Amount", "fieldtype": "Currency", "width": 120},
         {"fieldname": "running_total", "label": "Running Total", "fieldtype": "Currency", "width": 130},
         {"fieldname": "ageing", "label": "Ageing (Days)", "fieldtype": "Int", "width": 130},
-    ]
+    ])
 
+    # -----------------------
+    # Filters
+    # -----------------------
     condns = {"docstatus": 1}
     data = []
     address_display = None
@@ -35,6 +49,7 @@ def execute(filters=None):
                 },
                 "parent",
             )
+
             if address_name:
                 address_doc = frappe.get_doc("Address", address_name)
                 address_display = frappe.get_attr(
@@ -48,21 +63,28 @@ def execute(filters=None):
         elif filters.get("to_date"):
             condns["posting_date"] = ["<=", filters.to_date]
 
+    # -----------------------
+    # Fields
+    # -----------------------
     fields = [
         "name",
         "posting_date",
         "grand_total",
-        "outstanding_amount",      
+        "outstanding_amount",
         "customer",
         "customer_name",
         "is_return",
-        "custom_bl_no",     
-        "custom_bayan_no",
     ]
 
-    meta = frappe.get_meta("Sales Invoice")
+    if meta.has_field("custom_bl_no"):
+        fields.append("custom_bl_no")
+
+    if meta.has_field("custom_bayan_no"):
+        fields.append("custom_bayan_no")
+
     if meta.has_field("custom_job_record"):
         fields.append("custom_job_record")
+
     if meta.has_field("custom_warehouse_job_record"):
         fields.append("custom_warehouse_job_record")
 
@@ -78,6 +100,9 @@ def execute(filters=None):
     if not invoices:
         return columns, []
 
+    # -----------------------
+    # Ageing Setup
+    # -----------------------
     as_of_date = today()
 
     ageing = {
@@ -95,12 +120,15 @@ def execute(filters=None):
     total_credit = 0
     net_balance = 0
 
+    # -----------------------
+    # Loop Invoices
+    # -----------------------
     for idx, inv in enumerate(invoices):
+
         posting_date = inv.get("posting_date")
         os_amount = flt(inv.get("outstanding_amount"))
         grand_total = flt(inv.get("grand_total"))
         is_return = inv.get("is_return")
-        
 
         inv["narration"] = (
             inv.get("custom_job_record")
@@ -108,9 +136,13 @@ def execute(filters=None):
             or ""
         )
 
-        inv["bl_no"] = inv.get("custom_bl_no") or ""
-        inv["bayan_no"] = inv.get("custom_bayan_no") or ""
+        if meta.has_field("custom_bl_no"):
+            inv["bl_no"] = inv.get("custom_bl_no", "")
 
+        if meta.has_field("custom_bayan_no"):
+            inv["bayan_no"] = inv.get("custom_bayan_no", "")
+
+        # Debit / Credit
         if is_return:
             inv["debit"] = 0
             inv["credit"] = abs(grand_total)
@@ -128,6 +160,7 @@ def execute(filters=None):
         inv["os_amount"] = os_amount
         inv["running_total"] = running_total
 
+        # Ageing
         if posting_date:
             age = (getdate(as_of_date) - getdate(posting_date)).days
         else:
@@ -136,6 +169,7 @@ def execute(filters=None):
         inv["ageing"] = age
 
         amt = abs(os_amount)
+
         if age < 30:
             ageing["ageing_30"] += amt
         elif age < 60:
@@ -156,6 +190,9 @@ def execute(filters=None):
 
     data.extend(invoices)
 
+    # -----------------------
+    # Total Row
+    # -----------------------
     data.append({
         "narration": "TOTAL",
         "debit": total_debit,
