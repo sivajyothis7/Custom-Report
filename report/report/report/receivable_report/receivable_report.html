@@ -124,19 +124,28 @@
     <p>
         Please find here below the details of your outstanding invoices as of today 
         (<strong>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</strong>). 
-        Requesting you to settle the same at the earliest, your outstanding past due balance is 
+        Requesting you to settle the same at the earliest, your outstanding balance for the period from
+        <strong>{%= frappe.datetime.str_to_user(filters.from_date) %}</strong> to
+        <strong>{%= frappe.datetime.str_to_user(filters.to_date) %}</strong> is 
         (<strong>SAR {%= (data[data.length - 1].balance || 0).toFixed(2) %}</strong>), 
         as details on the statement of outstanding given below.
+
+        <br><br>
+
+        Your total outstanding balance in our books as on today
+        (<strong>{%= frappe.datetime.str_to_user(frappe.datetime.get_today()) %}</strong>) is 
+        (<strong>SAR {%= (data[data.length - 1].gl_balance || 0).toFixed(2) %}</strong>), 
+        as per the General Ledger.
     </p>
 
     <table>
         <thead>
             <tr>
+                <th>Sl No</th>
                 <th>Date</th>
                 <th>Voucher No</th>
-                <th>Branch</th>
-                <th>Narration</th>
-                <th>Amount</th>
+                <th>Customer PO No</th>
+                <th>Invoice Amount</th>
                 <th>O/S Amount</th>
                 <th>Running Total</th> 
                 <th>Ageing</th>
@@ -146,13 +155,13 @@
         <tbody>
             {% for (var i = 0; i < data.length - 1; i++) { %}
                 <tr>
+                    <td>{%= i + 1 %}</td>
                     <td>{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
                     <td>{%= data[i].name %}</td>
-                    <td>{%= data[i].cost_center || '' %}</td>
-                    <td>{%= data[i].narration || '' %}</td>
-                    <td class="text-right">SAR {%= (data[i].amount || 0).toFixed(2) %}</td>
-                    <td class="text-right">SAR {%= (data[i].os_amount || 0).toFixed(2) %}</td>
-                    <td class="text-right">SAR {%= (data[i].running_total || 0).toFixed(2) %}</td> 
+                    <td>{%= data[i].po_no || '-' %}</td>
+                    <td class="text-right">{%= (data[i].amount || 0).toFixed(2) %}</td>
+                    <td class="text-right">{%= (data[i].os_amount || 0).toFixed(2) %}</td>
+                    <td class="text-right">{%= (data[i].running_total || 0).toFixed(2) %}</td> 
                     <td>{%= data[i].ageing || '-' %}</td>
                 </tr>
             {% } %}
