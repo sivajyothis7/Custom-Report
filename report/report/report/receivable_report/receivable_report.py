@@ -1,13 +1,32 @@
 import frappe
 from frappe.utils import today, getdate, money_in_words, flt
 
+def get_gl_balance(customer, company):
+    ar_account = frappe.db.get_value(
+        'Company', company, 'default_receivable_account'
+    )
+
+    result = frappe.db.sql("""
+        SELECT SUM(debit) - SUM(credit) AS balance
+        FROM `tabGL Entry`
+        WHERE party_type = 'Customer'
+          AND party = %(customer)s
+          AND account = %(account)s         
+          AND is_cancelled = 0
+    """, {
+        'customer': customer,
+        'account': ar_account       
+    }, as_dict=True)
+
+    return flt(result[0].balance, 2) if result else 0.00
+
+
 def execute(filters=None):
     columns = [
         {"fieldname": "posting_date", "label": "Date", "fieldtype": "Date", "width": 120},
         {"fieldname": "name", "label": "Voucher No", "fieldtype": "Link", "options": "Sales Invoice", "width": 200},
-        {"fieldname": "cost_center", "label": "Branch", "fieldtype": "Data", "width": 140},
-        {"fieldname": "narration", "label": "Narration", "fieldtype": "Data", "width": 200},
-        {"fieldname": "amount", "label": "Total Amount", "fieldtype": "Currency", "width": 150},
+        {"fieldname": "po_no", "label": "Customer PO No", "fieldtype": "Data", "width": 150},
+        {"fieldname": "amount", "label": "Invoice Amount", "fieldtype": "Currency", "width": 150},
         {"fieldname": "os_amount", "label": "O/S Amount", "fieldtype": "Currency", "width": 150},
         {"fieldname": "running_total", "label": "Running Total", "fieldtype": "Currency", "width": 150},  
         {"fieldname": "ageing", "label": "Ageing", "fieldtype": "Int", "width": 120}
@@ -40,7 +59,7 @@ def execute(filters=None):
 
     fields = [
         'name', 'posting_date', 'grand_total', 'outstanding_amount',
-        'cost_center', 'customer', 'customer_name'
+        'cost_center', 'customer', 'customer_name','po_no','company'
     ]
     meta = frappe.get_meta('Sales Invoice')
 
@@ -67,7 +86,13 @@ def execute(filters=None):
 
     if invoices:
         as_of_date = today()
+    
+        gl_balance = get_gl_balance(
+            filters.customer,
+            invoices[0].company         
+        )
 
+        
         ageing_buckets = {
             "ageing_30": 0, "ageing_60": 0, "ageing_90": 0,
             "ageing_120": 0, "ageing_150": 0, "ageing_180": 0,
@@ -127,12 +152,11 @@ def execute(filters=None):
 
         balance_row = {
             "posting_date": "",
-            "name": "",
-            "cost_center": "",
-            "narration": "",
+            "name": "",           
             "amount": total_amt,
             "os_amount": total_os,
             "balance": total_os,
+            "gl_balance": gl_balance,
             "running_total": running_total,  
             "ageing": "",
             "ageing_30": ageing_buckets["ageing_30"],
