@@ -6,13 +6,32 @@ import frappe
 from frappe.utils import today, getdate, money_in_words, flt
 
 
+def get_gl_balance(supplier, company):
+    ap_account = frappe.db.get_value(
+        'Company', company, 'default_payable_account'
+    )
+
+    result = frappe.db.sql("""
+        SELECT SUM(credit) - SUM(debit) AS balance
+        FROM `tabGL Entry`
+        WHERE party_type = 'Supplier'
+          AND party = %(supplier)s
+          AND account = %(account)s
+          AND is_cancelled = 0
+    """, {
+        'supplier': supplier,
+        'account': ap_account
+    }, as_dict=True)
+
+    return flt(result[0].balance, 2) if result else 0.00
+
+
 def execute(filters=None):
     columns = [
         {"fieldname": "posting_date", "label": "Date", "fieldtype": "Date", "width": 120},
         {"fieldname": "name", "label": "Voucher No", "fieldtype": "Link", "options": "Purchase Invoice", "width": 200},
-        {"fieldname": "cost_center", "label": "Branch", "fieldtype": "Data", "width": 140},
-        {"fieldname": "narration", "label": "Narration", "fieldtype": "Data", "width": 200},
-        {"fieldname": "amount", "label": "Total Amount", "fieldtype": "Currency", "width": 150},
+        {"fieldname": "bill_no", "label": "Supplier Invoice No", "fieldtype": "Data", "width": 150},
+        {"fieldname": "amount", "label": "Invoice Amount", "fieldtype": "Currency", "width": 150},
         {"fieldname": "os_amount", "label": "O/S Amount", "fieldtype": "Currency", "width": 150},
         {"fieldname": "running_total", "label": "Running Total", "fieldtype": "Currency", "width": 150},
         {"fieldname": "ageing", "label": "Ageing", "fieldtype": "Int", "width": 120},
@@ -55,6 +74,8 @@ def execute(filters=None):
         "cost_center",
         "supplier",
         "supplier_name",
+        "bill_no",
+        "company",
     ]
 
     meta = frappe.get_meta("Purchase Invoice")
@@ -74,6 +95,12 @@ def execute(filters=None):
 
     if invoices:
         as_of_date = today()
+
+        gl_balance = get_gl_balance(
+            filters.supplier,
+            invoices[0].company
+        )
+
         ageing_buckets = {
             "ageing_30": 0,
             "ageing_60": 0,
@@ -138,11 +165,10 @@ def execute(filters=None):
         balance_row = {
             "posting_date": "",
             "name": "",
-            "cost_center": "",
-            "narration": "",
             "amount": total_amt,
             "os_amount": total_os,
             "balance": total_os,
+            "gl_balance": gl_balance,
             "running_total": running_total,
             "ageing": "",
             "ageing_30": ageing_buckets["ageing_30"],
